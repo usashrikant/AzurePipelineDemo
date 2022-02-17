@@ -38,13 +38,13 @@ stages:
         verbose: false
         customCommand: 'run build'
 
-    # - task: Npm@1
-    #   displayName: 'Test UI'
-    #   inputs:
-    #     command: custom
-    #     workingDir: 'ClientApp'
-    #     verbose: false
-    #     customCommand: 'run test'
+    - task: Npm@1
+      displayName: 'Test UI'
+      inputs:
+        command: custom
+        workingDir: 'ClientApp'
+        verbose: false
+        customCommand: 'run test'
 
     - task: DotNetCoreCLI@2
       displayName: 'Restore project dependencies'
