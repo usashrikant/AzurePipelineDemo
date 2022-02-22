@@ -48,7 +48,7 @@ stages:
         command: custom
         workingDir: 'ClientApp'
         verbose: false
-        customCommand: 'run test'
+        customCommand: 'run test --watch=false --browsers=ChromeHeadless'
 
     # Middle Layer
     - task: DotNetCoreCLI@2
