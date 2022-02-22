@@ -13,6 +13,7 @@ variables:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   poolName: 'Test'
+  artifaceName: drop
 
 stages:
 - stage: 'Build'
@@ -43,13 +44,13 @@ stages:
         verbose: false
         customCommand: 'run build'
 
-    # - task: Npm@1
-    #   displayName: 'Test UI'
-    #   inputs:
-    #     command: custom
-    #     workingDir: 'ClientApp'
-    #     verbose: false
-    #     customCommand: 'run test --watch=false'
+    - task: Npm@1
+      displayName: 'Test UI'
+      inputs:
+        command: custom
+        workingDir: 'ClientApp'
+        verbose: false
+        customCommand: 'run test --watch=false'
 
     # Middle Layer
     - task: DotNetCoreCLI@2
@@ -76,30 +77,30 @@ stages:
         zipAfterPublish: true
 
     - publish: '$(Build.ArtifactStagingDirectory)'
-      artifact: drop
+      artifact: $(artifaceName)
 
-# - stage: 'DeployDev'
-#   displayName: 'Deploy to Dev'
-  # variables: 
-  #   appName: 'AS3KDemo'
-  # jobs:
-  # - deployment: 'Dev'
-  #   pool:
-  #     name: test
-  #   environment: 'Dev'
-  #   strategy: 
-  #      runOnce:     
-  #       deploy:
-  #         steps:
-  #          - task: AzureRmWebAppDeployment@4
-  #            displayName: 'Deploy .NET Code to Azure App Service '
-  #            inputs:
-  #             ConnectionType: 'AzureRM'
-  #             azureSubscription: 'Free Trial (cf12cdda-4e4c-4957-a919-d7dbc60b6fcb)'
-  #             appType: 'webApp'
-  #             WebAppName: $(appName)
-  #             packageForLinux: '$(Agent.WorkFolder)/$(Build.BuildId)/drop/$(buildConfiguration)/*.zip'
-  #             RuntimeStack: 'DOTNETCORE|5.0'
+- stage: 'DeployDev'
+  displayName: 'Deploy to Dev'
+  variables: 
+    appName: 'AS3KDemo'
+  jobs:
+  - deployment: 'Dev'
+    pool:
+      name: test
+    environment: 'Dev'
+    strategy: 
+       runOnce:     
+        deploy:
+          steps:
+           - task: AzureRmWebAppDeployment@4
+             displayName: 'Deploy .NET Code to Azure App Service '
+             inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: 'Free Trial (cf12cdda-4e4c-4957-a919-d7dbc60b6fcb)'
+              appType: 'webApp'
+              WebAppName: $(appName)
+              packageForLinux: '$(Pipeline.Workspace)/$(artifaceName)/$(buildConfiguration)/*.zip'
+              RuntimeStack: 'DOTNETCORE|5.0'
 
 - stage: 'DeployTest'
   displayName: 'Deploy to Test'
@@ -121,5 +122,5 @@ stages:
               azureSubscription: 'Free Trial (cf12cdda-4e4c-4957-a919-d7dbc60b6fcb)'
               appType: 'webAppLinux'
               WebAppName: $(appName)
-              packageForLinux: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+              packageForLinux: '$(Pipeline.Workspace)/$(artifaceName)/$(buildConfiguration)/*.zip'
               RuntimeStack: 'DOTNETCORE|5.0'
