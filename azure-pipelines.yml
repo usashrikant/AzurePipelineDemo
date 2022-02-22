@@ -31,6 +31,7 @@ stages:
     - task: Npm@1
       displayName: 'Restore Angular Dependencies'
       inputs:
+        command: install
         workingDir: 'ClientApp'
         verbose: false
 
@@ -48,7 +49,7 @@ stages:
         command: custom
         workingDir: 'ClientApp'
         verbose: false
-        customCommand: 'run test --watch=false --browsers=ChromeHeadless'
+        customCommand: 'run test --watch=false'
 
     # Middle Layer
     - task: DotNetCoreCLI@2
