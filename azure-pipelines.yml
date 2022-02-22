@@ -80,26 +80,26 @@ stages:
 
 - stage: 'DeployDev'
   displayName: 'Deploy to Dev'
-  variables: 
-    appName: 'AS3KDemo'
-  jobs:
-  - deployment: 'Dev'
-    pool:
-      name: test
-    environment: 'Dev'
-    strategy: 
-       runOnce:     
-        deploy:
-          steps:
-           - task: AzureRmWebAppDeployment@4
-             displayName: 'Deploy .NET Code to Azure App Service '
-             inputs:
-              ConnectionType: 'AzureRM'
-              azureSubscription: 'Free Trial (cf12cdda-4e4c-4957-a919-d7dbc60b6fcb)'
-              appType: 'webApp'
-              WebAppName: $(appName)
-              packageForLinux: '$(Agent.WorkFolder)/$(Build.BuildId)/drop/$(buildConfiguration)/*.zip'
-              RuntimeStack: 'DOTNETCORE|5.0'
+  # variables: 
+  #   appName: 'AS3KDemo'
+  # jobs:
+  # - deployment: 'Dev'
+  #   pool:
+  #     name: test
+  #   environment: 'Dev'
+  #   strategy: 
+  #      runOnce:     
+  #       deploy:
+  #         steps:
+  #          - task: AzureRmWebAppDeployment@4
+  #            displayName: 'Deploy .NET Code to Azure App Service '
+  #            inputs:
+  #             ConnectionType: 'AzureRM'
+  #             azureSubscription: 'Free Trial (cf12cdda-4e4c-4957-a919-d7dbc60b6fcb)'
+  #             appType: 'webApp'
+  #             WebAppName: $(appName)
+  #             packageForLinux: '$(Agent.WorkFolder)/$(Build.BuildId)/drop/$(buildConfiguration)/*.zip'
+  #             RuntimeStack: 'DOTNETCORE|5.0'
 
 - stage: 'DeployTest'
   displayName: 'Deploy to Test'
