@@ -32,7 +32,7 @@ stages:
         command: buildAndPush
         repository: 'Walmart'
         dockerfile: '**/Dockerfile'
-        containerRegistry: 'Docker Hub Connection'
+        containerRegistry: 'Docker'
         tags: |
           $(tag)
           
