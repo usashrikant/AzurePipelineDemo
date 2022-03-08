@@ -13,114 +13,28 @@ variables:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   poolName: 'Test'
-  artifaceName: drop
+  artifaceName: aks
+  tag: '$(Build.BuildId)'
 
 stages:
-- stage: 'Build'
+- stage: Build
   displayName: 'Build the web application'
   jobs:
-  - job: 'BuildClient'
+  - job: 'Build'
     displayName: 'Build job'
     pool:
       name: $(poolName)
     
-    variables:
-      dotnetSdkVersion: '5.x'
-
     steps:
-    # UI Layer
-    - task: Npm@1
-      displayName: 'Restore Angular Dependencies'
+    - task: Docker@2
+      displayName: Build and push an image to container registry
       inputs:
-        command: install
-        workingDir: 'ClientApp'
-        verbose: false
-
-    - task: Npm@1
-      displayName: 'Build Angular'
-      inputs:
-        command: custom
-        workingDir: 'ClientApp'
-        verbose: false
-        customCommand: 'run build'
-
-    - task: Npm@1
-      displayName: 'Test UI'
-      inputs:
-        command: custom
-        workingDir: 'ClientApp'
-        verbose: false
-        customCommand: 'run test --watch=false'
-
-    # Middle Layer
-    - task: DotNetCoreCLI@2
-      displayName: 'Restore project dependencies'
-      inputs:
-        command: 'restore'
-        projects: '**/*.csproj'
-
-    - task: DotNetCoreCLI@2
-      displayName: 'Build the project - $(buildConfiguration)'
-      inputs:
-        command: 'build'
-        arguments: '--no-restore --configuration $(buildConfiguration)'
-        projects: '**/*.csproj'
-
-
-    - task: DotNetCoreCLI@2
-      displayName: 'Publish the project - $(buildConfiguration)'
-      inputs:
-        command: 'publish'
-        projects: '**/*.csproj'
-        publishWebProjects: false
-        arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
-        zipAfterPublish: true
-
-    - publish: '$(Build.ArtifactStagingDirectory)'
-      artifact: $(artifaceName)
-
-- stage: 'DeployDev'
-  displayName: 'Deploy to Dev'
-  variables: 
-    appName: 'AS3KDemo'
-  jobs:
-  - deployment: 'Dev'
-    pool:
-      name: test
-    environment: 'Dev'
-    strategy: 
-       runOnce:     
-        deploy:
-          steps:
-           - task: AzureRmWebAppDeployment@4
-             displayName: 'Deploy .NET Code to Azure App Service '
-             inputs:
-              ConnectionType: 'AzureRM'
-              azureSubscription: 'Free Trial (cf12cdda-4e4c-4957-a919-d7dbc60b6fcb)'
-              appType: 'webApp'
-              WebAppName: $(appName)
-              packageForLinux: '$(Pipeline.Workspace)/$(artifaceName)/$(buildConfiguration)/*.zip'
-              RuntimeStack: 'DOTNETCORE|5.0'
-
-- stage: 'DeployTest'
-  displayName: 'Deploy to Test'
-  variables: 
-    appName: 'AS3KTest'
-  jobs:
-  - deployment: 'Test'
-    pool:
-      name: test
-    environment: 'Test'
-    strategy: 
-       runOnce:     
-        deploy:
-          steps:
-           - task: AzureRmWebAppDeployment@4
-             displayName: 'Deploy .NET Code to Azure App Service '
-             inputs:
-              ConnectionType: 'AzureRM'
-              azureSubscription: 'Free Trial (cf12cdda-4e4c-4957-a919-d7dbc60b6fcb)'
-              appType: 'webAppLinux'
-              WebAppName: $(appName)
-              packageForLinux: '$(Pipeline.Workspace)/$(artifaceName)/$(buildConfiguration)/*.zip'
-              RuntimeStack: 'DOTNETCORE|5.0'
+        command: buildAndPush
+        repository: 'Walmart'
+        dockerfile: '**/Dockerfile'
+        containerRegistry: 'Docker Hub Connection'
+        tags: |
+          $(tag)
+          
+    # - upload: aks
+    #   artifact: aks
