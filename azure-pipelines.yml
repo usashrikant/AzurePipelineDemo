@@ -12,6 +12,7 @@ pool:
 variables:
   buildConfiguration: 'Release'
 
+steps:
 - task: Npm@1
   inputs:
     command: 'install'
@@ -23,7 +24,6 @@ variables:
     workingDir: 'ClientApp'
     customCommand: 'test'
 
-steps:
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
 
