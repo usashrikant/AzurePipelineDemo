@@ -12,28 +12,36 @@ pool:
 variables:
   buildConfiguration: 'Release'
 
-steps:
-- task: Npm@1
-  inputs:
-    command: 'install'
-    workingDir: 'ClientApp'
+stages:
+- stage: Build
+  jobs:
+  - job: 'Build'
 
-- task: Npm@1
-  inputs:
-    command: 'custom'
-    workingDir: 'ClientApp'
-    customCommand: 'test'
+    steps:
+    - task: Npm@1
+      inputs:
+        command: 'install'
+        workingDir: 'ClientApp'
 
-- script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
+    - task: Npm@1
+      inputs:
+        command: 'custom'
+        workingDir: 'ClientApp'
+        customCommand: 'test'
 
-- task: CopyFiles@2
-  inputs:
-    Contents: '**'
-    TargetFolder: $(Build.ArtifactStagingDirectory)
+    - script: dotnet build --configuration $(buildConfiguration)
+      displayName: 'dotnet build $(buildConfiguration)'
+   
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'publish'
+        projects: '**/*.csproj'
+        publishWebProjects: true
+        arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
+        zipAfterPublish: true
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
