@@ -4,40 +4,63 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 trigger:
-- '*'
 - master
+- develop
+- feature/*
+- bugfix/*
+- hotfix/*
 
 pool:
-  name: 'Demo1'
+  name: 'Demo'
 
 variables:
-  buildConfiguration: 'Release'
+  config: 'Release'
 
 stages:
 - stage: 'Build'
   jobs:
-  - job:
+  - job: 'BuildClient'
     steps:  
     - task: Npm@1
+      displayName: 'Install Client Dependencies'
       inputs:
         command: 'install'
         workingDir: 'ClientApp'
     
     - task: Npm@1
+      displayName: 'Build Client Application'
       inputs:
-        command: 'ci'
+        command: 'custom'
         workingDir: 'ClientApp'
+        customCommand: 'run build --prod'
 
-    - script: dotnet build --configuration $(buildConfiguration)
-      displayName: 'dotnet build $(buildConfiguration)'
+    - task: Npm@1
+      displayName: 'Test Client Application'
+      inputs:
+        command: 'custom'
+        workingDir: 'ClientApp'
+        customCommand: 'run test -- watch=false'
+
+
+  - job: 'BuildDotnet'
+    pool: 
+     name: 'Test'
+    steps:  
+    - script: dotnet build --configuration $(config)
+      displayName: 'dotnet build $(config)'
+
+    - script: echo 'Hello World'
+      displayName: 'dotnet build $(config)'
    
     - task: DotNetCoreCLI@2
       inputs:
         command: 'publish'
         publishWebProjects: true
-        arguments: '--configuration  $(buildConfiguration)  --output $(build.ArtifactStagingDirectory)/$(buildConfiguration)'
+        arguments: '--configuration  $(config)  --output $(build.ArtifactStagingDirectory)/$(config)'
         zipAfterPublish: true
 
+  - job: 'PublishArtifacts'
+    steps: 
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
