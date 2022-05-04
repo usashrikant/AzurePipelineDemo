@@ -44,8 +44,8 @@ stages:
 
 
   - job: 'BuildDotnet'
-    pool: 
-     name: 'Test'
+    # pool: 
+    #  name: 'Demo'
     steps:  
     - script: dotnet build --configuration $(config)
       displayName: 'dotnet build $(config)'
