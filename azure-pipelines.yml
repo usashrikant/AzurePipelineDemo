@@ -69,3 +69,96 @@ stages:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'drop'
         publishLocation: 'Container'
+
+- stage: 'Deployement to Dev'
+  jobs:
+    # Track deployments on the environment.
+  - deployment: DeployWeb
+    displayName: 'deploy Web App'
+    pool:
+      name: 'Demo'
+    # Creates an environment if it doesn't exist.
+    environment: 'Development'
+    strategy:
+      # Default deployment strategy, more coming...
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureRmWebAppDeployment@4
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: 'Azure Connection'
+              appType: 'webAppLinux'
+              WebAppName: 'bermtecdev'
+              packageForLinux: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+
+- stage: 'Deployement to Test'
+  jobs:
+    # Track deployments on the environment.
+  - deployment: DeployWeb
+    displayName: 'deploy Web App'
+    pool:
+      name: 'Demo'
+    # Creates an environment if it doesn't exist.
+    environment: 'Test'
+    strategy:
+      # Default deployment strategy, more coming...
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureRmWebAppDeployment@4
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: 'Azure Connection'
+              appType: 'webAppLinux'
+              WebAppName: 'bermtecdev'
+              packageForLinux: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+
+- stage: 'Deployement to Staging'
+  jobs:
+    # Track deployments on the environment.
+  - deployment: DeployWeb
+    displayName: 'deploy Web App'
+    variables: 
+      app: bermtecstaging
+    pool:
+      name: 'Demo'
+    # Creates an environment if it doesn't exist.
+    environment: 'Staging'
+    strategy:
+      # Default deployment strategy, more coming...
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureRmWebAppDeployment@4
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: 'Azure Connection'
+              appType: 'webAppLinux'
+              WebAppName: '$(app)'
+              packageForLinux: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+
+- stage: 'Deployement to Prod'
+  jobs:
+    # Track deployments on the environment.
+  - deployment: DeployWeb
+    displayName: 'deploy Web App'
+    condition: and(succeeded(), eq(variables.isMain, 'true'))
+    variables: 
+      app: bermtec
+    pool:
+      name: 'Demo'
+    # Creates an environment if it doesn't exist.
+    environment: 'Prod'
+    strategy:
+      # Default deployment strategy, more coming...
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureRmWebAppDeployment@4
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: 'Azure Connection'
+              appType: 'webAppLinux'
+              WebAppName: '$(app)'
+              packageForLinux: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
