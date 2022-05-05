@@ -65,3 +65,47 @@ stages:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'drop'
         publishLocation: 'Container'
+
+- stage: 'DeployDev'
+  displayName: 'Deploy to Dev'
+  variables: 
+    appName: 'bermtecdev'
+  jobs:
+  - deployment: 'Dev'
+    pool:
+      name: Demo
+    environment: 'Dev'
+    strategy: 
+       runOnce:     
+        deploy:
+          steps:
+           - task: AzureRmWebAppDeployment@4
+             inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: 'Azure Connection'
+              appType: 'webAppLinux'
+              WebAppName: $(appName)
+              packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
+
+- stage: 'DeployTest'
+  displayName: 'Deploy to Test'
+  condition: and(succeeded(), eq(variables.isMain, 'true'))
+  variables: 
+    appName: 'AS3KTest'
+  jobs:
+  - deployment: 'Test'
+    pool:
+      name: Demo
+    environment: 'Test'
+    strategy: 
+       runOnce:     
+        deploy:
+          steps:
+           - task: AzureRmWebAppDeployment@4
+             displayName: 'Deploy .NET Code to Azure App Service '
+             inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: 'Azure Connection'
+              appType: 'webAppLinux'
+              WebAppName: $(appName)
+              packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
