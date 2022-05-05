@@ -87,7 +87,7 @@ stages:
               azureSubscription: 'Azure Connection'
               appType: 'webAppLinux'
               WebAppName: $(appName)
-              packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
+              packageForLinux: '$(Pipeline.Workspace)/$(artifaceName)/$(config)/**/*.zip'
 
 - stage: 'DeployTest'
   displayName: 'Deploy to Test'
@@ -110,4 +110,4 @@ stages:
               azureSubscription: 'Azure Connection'
               appType: 'webAppLinux'
               WebAppName: $(appName)
-              packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
+              packageForLinux: '$(Pipeline.Workspace)/$(artifaceName)/$(config)/**/*.zip'
