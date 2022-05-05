@@ -90,7 +90,7 @@ stages:
               azureSubscription: 'Azure Connection'
               appType: 'webAppLinux'
               WebAppName: 'bermtecdev'
-              packageForLinux: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+              packageForLinux: '$(Pipeline.Workspace)/drop/$(config)/*.zip'
 
 - stage: 'TestDeployment'
   jobs:
@@ -112,7 +112,7 @@ stages:
               azureSubscription: 'Azure Connection'
               appType: 'webAppLinux'
               WebAppName: 'bermtecdev'
-              packageForLinux: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+              packageForLinux: '$(Pipeline.Workspace)/drop/$(config)/*.zip'
 
 - stage: 'StagingDeployment'
   jobs:
@@ -136,7 +136,7 @@ stages:
               azureSubscription: 'Azure Connection'
               appType: 'webAppLinux'
               WebAppName: '$(app)'
-              packageForLinux: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+              packageForLinux: '$(Pipeline.Workspace)/drop/$(config)/*.zip'
 
 - stage: 'ProdDeployment'
   jobs:
@@ -161,4 +161,4 @@ stages:
               azureSubscription: 'Azure Connection'
               appType: 'webAppLinux'
               WebAppName: '$(app)'
-              packageForLinux: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+              packageForLinux: '$(Pipeline.Workspace)/drop/$(config)/*.zip'
