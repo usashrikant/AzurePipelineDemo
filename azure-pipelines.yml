@@ -5,15 +5,12 @@
 
 trigger:
 - feature/*
-- main
-- master
-- develop
 
 variables:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  poolName: 'Test'
-  artifaceName: aks
+  poolName: 'demo'
+  artifaceName: cpo
   tag: '$(Build.BuildId)'
 
 stages:
@@ -24,17 +21,36 @@ stages:
     displayName: 'Build job'
     pool:
       name: $(poolName)
-    
+        
     steps:
-    - task: Docker@2
-      displayName: Build and push an image to container registry
+    - task: Npm@1
+      displayName: Build angular code using NPM
       inputs:
-        command: buildAndPush
-        repository: 'Walmart'
-        dockerfile: '**/Dockerfile'
-        containerRegistry: 'Docker Hub Connection'
-        tags: |
-          $(tag)
+        command: 'install'
+        workingDir: 'ClientApp'
+
+    - task: Npm@1
+      displayName: Build angular code using NPM
+      inputs:
+        command: 'install'
+        workingDir: 'ClientApp'
+    
+    - task: Npm@1
+      displayName: Publish angular code using NPM
+      inputs:
+        command: 'ci'
+        workingDir: 'ClientApp'
+    - script: dontnet build --configuration $(buildConfiguration)
+      displayName: 'dotnet biuld $(buildConfiguration)'
+    
+    - task: DotNetCoreCLI@2
+      displayName: Publish angular code using NPM
+      inputs:
+        command: 'publish'
+        publishWebProjects: true
+        arguments: '--configuration $(buildConfiguration) --output $(build.ArtifactStagingDirectory)/$(buildConfiguration)'
+        zipAfterPublish: true
+
           
-    # - upload: aks
-    #   artifact: aks
+    # - upload: cpo
+    #   artifact: cpo
