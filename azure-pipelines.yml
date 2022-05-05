@@ -23,6 +23,8 @@ stages:
 - stage: 'Build'
   jobs:
   - job: 'BuildClient'
+    pool:
+      name: 'Test'
     steps:  
     - task: Npm@1
       displayName: 'Install Client Dependencies'
