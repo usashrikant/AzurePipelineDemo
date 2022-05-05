@@ -70,7 +70,7 @@ stages:
         ArtifactName: 'drop'
         publishLocation: 'Container'
 
-- stage: 'Deployement to Dev'
+- stage: 'DevDeployment'
   jobs:
     # Track deployments on the environment.
   - deployment: DeployWeb
@@ -92,7 +92,7 @@ stages:
               WebAppName: 'bermtecdev'
               packageForLinux: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
 
-- stage: 'Deployement to Test'
+- stage: 'TestDeployment'
   jobs:
     # Track deployments on the environment.
   - deployment: DeployWeb
@@ -114,7 +114,7 @@ stages:
               WebAppName: 'bermtecdev'
               packageForLinux: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
 
-- stage: 'Deployement to Staging'
+- stage: 'StagingDeployment'
   jobs:
     # Track deployments on the environment.
   - deployment: DeployWeb
@@ -138,7 +138,7 @@ stages:
               WebAppName: '$(app)'
               packageForLinux: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
 
-- stage: 'Deployement to Prod'
+- stage: 'ProdDeployment'
   jobs:
     # Track deployments on the environment.
   - deployment: DeployWeb
