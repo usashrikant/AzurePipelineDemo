@@ -9,7 +9,7 @@ trigger:
 variables:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  poolName: 'demo1'
+  poolName: 'demo2'
   artifaceName: cpo
   tag: '$(Build.BuildId)'
 
