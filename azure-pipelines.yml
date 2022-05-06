@@ -7,7 +7,6 @@ trigger:
 - '*''
 
 variables:
-  buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   poolName: 'demo'
   artifaceName: cpo
