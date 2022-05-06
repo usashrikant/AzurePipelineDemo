@@ -51,6 +51,14 @@ stages:
         arguments: '--configuration $(buildConfiguration) --output $(build.ArtifactStagingDirectory)/$(buildConfiguration)'
         zipAfterPublish: true
 
+    - task: PublishBuildArtifacts@1
+      displayName: Publish angular code using NPM
+      inputs:
+        PathtoPublish: '$(build.ArtifactStagingDirectory)'
+        ArtifactName: 'cpo'
+        publishLocation: 'Container'
+
+
           
     # - upload: cpo
     #   artifact: cpo
