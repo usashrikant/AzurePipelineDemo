@@ -4,161 +4,62 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 trigger:
-- master
-- main
-- develop
-- feature/*
-- bugfix/*
-- hotfix/*
-
-pool:
-  name: 'Demo'
-  artifaceName: drop
-  isMain: $[eq(variables['Build.SourceBranch'], 'refs/heads/main')]
+- '*'
 
 variables:
-  config: 'Release'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+  poolName: 'demo1'
+  artifaceName: cpo
+  tag: '$(Build.BuildId)'
 
 stages:
-- stage: 'Build'
+- stage: Build
+  displayName: 'Build the web application'
   jobs:
-  - job: 'BuildClient'
+  - job: 'Build'
+    displayName: 'Build job'
     pool:
-      name: 'Test'
-    steps:  
+      name: $(poolName)
+        
+    steps:
     - task: Npm@1
-      displayName: 'Install Client Dependencies'
+      displayName: Build angular code using NPM
+      inputs:
+        command: 'install'
+        workingDir: 'ClientApp'
+
+    - task: Npm@1
+      displayName: Build angular code using NPM
       inputs:
         command: 'install'
         workingDir: 'ClientApp'
     
     - task: Npm@1
-      displayName: 'Build Client Application'
+      displayName: Publish angular code using NPM
       inputs:
-        command: 'custom'
+        command: 'ci'
         workingDir: 'ClientApp'
-        customCommand: 'run build --prod'
-
-    - task: Npm@1
-      displayName: 'Test Client Application'
-      inputs:
-        command: 'custom'
-        workingDir: 'ClientApp'
-        customCommand: 'run test --watch=false'
-
-
-  - job: 'BuildDotnet'
-    # pool: 
-    #  name: 'Demo'
-    steps:  
-    - script: dotnet build --configuration $(config)
-      displayName: 'dotnet build $(config)'
-
-    - script: echo 'Hello World'
-      displayName: 'dotnet build $(config)'
-   
+    - script: dotnet build --configuration $(buildConfiguration)
+      displayName: 'dotnet biuld $(buildConfiguration)'
+    
     - task: DotNetCoreCLI@2
+      displayName: Publish angular code using NPM
       inputs:
         command: 'publish'
         publishWebProjects: true
-        arguments: '--configuration  $(config)  --output $(build.ArtifactStagingDirectory)/$(config)'
+        projects: '**/*.csproj'
+        arguments: '--configuration $(buildConfiguration) --output $(build.ArtifactStagingDirectory)/$(buildConfiguration)'
         zipAfterPublish: true
 
     - task: PublishBuildArtifacts@1
+      displayName: Publish angular code using NPM
       inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        ArtifactName: 'drop'
+        PathtoPublish: '$(build.ArtifactStagingDirectory)'
+        ArtifactName: 'cpo'
         publishLocation: 'Container'
 
-- stage: 'DevDeployment'
-  jobs:
-    # Track deployments on the environment.
-  - deployment: DeployWeb
-    displayName: 'deploy Web App'
-    pool:
-      name: 'Demo'
-    # Creates an environment if it doesn't exist.
-    environment: 'Development'
-    strategy:
-      # Default deployment strategy, more coming...
-      runOnce:
-        deploy:
-          steps:
-          - task: AzureRmWebAppDeployment@4
-            inputs:
-              ConnectionType: 'AzureRM'
-              azureSubscription: 'Azure Connection'
-              appType: 'webAppLinux'
-              WebAppName: 'bermtecdev'
-              packageForLinux: '$(Pipeline.Workspace)/drop/$(config)/*.zip'
 
-- stage: 'TestDeployment'
-  jobs:
-    # Track deployments on the environment.
-  - deployment: DeployWeb
-    displayName: 'deploy Web App'
-    pool:
-      name: 'Demo'
-    # Creates an environment if it doesn't exist.
-    environment: 'Test'
-    strategy:
-      # Default deployment strategy, more coming...
-      runOnce:
-        deploy:
-          steps:
-          - task: AzureRmWebAppDeployment@4
-            inputs:
-              ConnectionType: 'AzureRM'
-              azureSubscription: 'Azure Connection'
-              appType: 'webAppLinux'
-              WebAppName: 'bermtecdev'
-              packageForLinux: '$(Pipeline.Workspace)/drop/$(config)/*.zip'
-
-- stage: 'StagingDeployment'
-  jobs:
-    # Track deployments on the environment.
-  - deployment: DeployWeb
-    displayName: 'deploy Web App'
-    variables: 
-      app: bermtecstaging
-    pool:
-      name: 'Demo'
-    # Creates an environment if it doesn't exist.
-    environment: 'Staging'
-    strategy:
-      # Default deployment strategy, more coming...
-      runOnce:
-        deploy:
-          steps:
-          - task: AzureRmWebAppDeployment@4
-            inputs:
-              ConnectionType: 'AzureRM'
-              azureSubscription: 'Azure Connection'
-              appType: 'webAppLinux'
-              WebAppName: '$(app)'
-              packageForLinux: '$(Pipeline.Workspace)/drop/$(config)/*.zip'
-
-- stage: 'ProdDeployment'
-  jobs:
-    # Track deployments on the environment.
-  - deployment: DeployWeb
-    displayName: 'deploy Web App'
-    condition: and(succeeded(), eq(variables.isMain, 'true'))
-    variables: 
-      app: bermtec
-    pool:
-      name: 'Demo'
-    # Creates an environment if it doesn't exist.
-    environment: 'Prod'
-    strategy:
-      # Default deployment strategy, more coming...
-      runOnce:
-        deploy:
-          steps:
-          - task: AzureRmWebAppDeployment@4
-            inputs:
-              ConnectionType: 'AzureRM'
-              azureSubscription: 'Azure Connection'
-              appType: 'webAppLinux'
-              WebAppName: '$(app)'
-              packageForLinux: '$(Pipeline.Workspace)/drop/$(config)/*.zip'
+          
+    # - upload: cpo
+    #   artifact: cpo
