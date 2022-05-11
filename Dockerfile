@@ -1,14 +1,12 @@
 FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
 WORKDIR /app
 
-ENV config=Release
-
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
 
 RUN apt-get update
 RUN apt-get -y install curl gnupg
-RUN curl -sL https://deb.nodesource.com/setup_11.x  | bash -
+RUN curl -sL https://deb.nodesource.com/setup_12.x  | bash -
 RUN apt-get -y install nodejs
 
 COPY ["AzurePipelineDemo.csproj", "/src"]
