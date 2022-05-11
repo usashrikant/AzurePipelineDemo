@@ -28,14 +28,4 @@ stages:
         command: 'buildAndPush'
         Dockerfile: '**/Dockerfile'
 
-- stage: 'DevDeployment'
-
-
-- stage: 'TestDeployment'
- 
-
-- stage: 'StagingDeployment'
-
-
-- stage: 'ProdDeployment'
 
