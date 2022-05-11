@@ -20,39 +20,22 @@ stages:
 - stage: 'Build'
   jobs:
   - job: 'DockerBuild'
-    steps:  
-    - task: Npm@1
-      displayName: 'Install Client Dependencies'
+    steps:
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'Docker Hub Connection'
+        repository: 'walmartpayment'
+        command: 'buildAndPush'
+        Dockerfile: '**/Dockerfile'
 
 - stage: 'DevDeployment'
-  jobs:
-    # Track deployments on the environment.
-  - deployment: DeployWeb
-    displayName: 'deploy Web App'
-
 
 
 - stage: 'TestDeployment'
-  jobs:
-    # Track deployments on the environment.
-  - deployment: DeployWeb
-    displayName: 'deploy Web App'
  
 
 - stage: 'StagingDeployment'
-  jobs:
-    # Track deployments on the environment.
-  - deployment: DeployWeb
-    displayName: 'deploy Web App'
-    variables: 
-      app: bermtecstaging
 
 
 - stage: 'ProdDeployment'
-  jobs:
-    # Track deployments on the environment.
-  - deployment: DeployWeb
-    displayName: 'deploy Web App'
-    condition: and(succeeded(), eq(variables.isMain, 'true'))
-    variables: 
-      app: bermtec
+
