@@ -10,7 +10,7 @@ trigger:
 - bugfix/*
 
 pool:
-  name: 'Demo'
+  name: 'Test'
   artifaceName: drop
 
 variables:
