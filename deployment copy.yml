@@ -23,9 +23,11 @@ spec:
       containers:
       - name:  WalmartPayment
         image:  raghukom/walmartdotnet:tagversion
+        imagePullSecrets:
+        - name: regcred
         resources:
           requests:
-            cpu: 200m
+            cpu: 2000m
             memory: 200Mi
           limits:
             cpu: 100m
@@ -38,6 +40,15 @@ spec:
           successThreshold: 1
           failureThreshold: 3
           periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /_status/healthz
+            port: 80
+          initialDelaySeconds: 5
+          timeoutSeconds: 2
+          successThreshold: 1
+          failureThreshold: 3
+          periodSeconds: 10
         env:
         - name: DB_HOST
           valueFrom:
@@ -45,27 +56,13 @@ spec:
               name: MYAPP
               key: DB_HOST
         ports:
-        - containerPort:  5000
-          name:  WalmartPayment
+        - containerPort:  80
+          name:  MYAPP
+        volumeMounts:
+        - name: localtime
+          mountPath: /etc/localtime
+      volumes:
+        - name: localtime
+          hostPath:
+            path: /usr/share/zoneinfo/Asia/Shanghai
       restartPolicy: Always
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: WalmartPaymentService
-  namespace: walmart
-spec:
-  selector:
-    app: WalmartPayment
-  type: LoadBalancer
-  sessionAffinity: None
-  sessionAffinityConfig:
-    clientIP:
-      timeoutSeconds: 10800
-  ports:
-  - name: WalmartPaymentService
-    protocol: TCP
-    port: 80
-    targetPort: 5000
